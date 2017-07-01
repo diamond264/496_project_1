@@ -15,9 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
+import android.widget.SimpleAdapter;
+
 import static android.Manifest.permission.READ_CONTACTS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Tab1Contacts extends Fragment {
 
@@ -68,16 +72,24 @@ public class Tab1Contacts extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab1_contact, null);
-        ArrayList<String> LIST_CONTACT = new ArrayList<>();
+        ArrayList<Map<String, String>> LIST_CONTACT = new ArrayList<>();
 
         ArrayList<Contact> ContactArrList;
         ContactArrList = getContactList();
 
         for(int i=0;i<ContactArrList.size();i++) {
-            LIST_CONTACT.add(ContactArrList.get(i).phone_num);
+            HashMap<String, String> map = new HashMap<>();
+            map.put("name", ContactArrList.get(i).name);
+            map.put("num", ContactArrList.get(i).phone_num);
+            LIST_CONTACT.add(map);
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_list_item_1, LIST_CONTACT) ;
+        //ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_list_item_1, LIST_CONTACT) ;
+        SimpleAdapter adapter = new SimpleAdapter(this.getActivity(),
+                LIST_CONTACT,
+                android.R.layout.simple_list_item_2,
+                new String[]{"name", "num"},
+                new int[]{android.R.id.text1, android.R.id.text2});
 
         ListView listview = (ListView) view.findViewById(R.id.list_view) ;
         ((ViewGroup)listview.getParent()).removeView(listview);
