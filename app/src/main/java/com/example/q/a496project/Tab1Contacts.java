@@ -4,6 +4,8 @@ package com.example.q.a496project;
  * Created by q on 2017-06-30.
  */
 
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -13,9 +15,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -72,29 +77,57 @@ public class Tab1Contacts extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab1_contact, null);
-        ArrayList<Map<String, String>> LIST_CONTACT = new ArrayList<>();
 
         ArrayList<Contact> ContactArrList;
         ContactArrList = getContactList();
 
-        for(int i=0;i<ContactArrList.size();i++) {
-            HashMap<String, String> map = new HashMap<>();
-            map.put("name", ContactArrList.get(i).name);
-            map.put("num", ContactArrList.get(i).phone_num);
-            LIST_CONTACT.add(map);
-        }
-
-        //ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_list_item_1, LIST_CONTACT) ;
-        SimpleAdapter adapter = new SimpleAdapter(this.getActivity(),
-                LIST_CONTACT,
-                android.R.layout.simple_list_item_2,
-                new String[]{"name", "num"},
-                new int[]{android.R.id.text1, android.R.id.text2});
+        CustomAdapter adapter = new CustomAdapter(this.getActivity(), R.layout.contact_layout, ContactArrList);
 
         ListView listview = (ListView) view.findViewById(R.id.list_view) ;
-        ((ViewGroup)listview.getParent()).removeView(listview);
         listview.setAdapter(adapter) ;
 
-        return listview;
+        return view;
+    }
+
+    private class CustomAdapter extends ArrayAdapter<Contact> {
+        private ArrayList<Contact> items;
+
+        public CustomAdapter(Context context, int textViewResourceId, ArrayList<Contact> objects) {
+            super(context, textViewResourceId, objects);
+            this.items = objects;
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null) {
+                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(R.layout.contact_layout, null);
+            }
+
+            TextView textView1 = (TextView)v.findViewById(R.id.textView1);
+            textView1.setText(items.get(position).name);
+            TextView textView2 = (TextView)v.findViewById(R.id.textView2);
+            textView2.setText(items.get(position).phone_num);
+
+            final String phone_num = items.get(position).phone_num;
+            Button button1 = (Button)v.findViewById(R.id.button1);
+            button1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String tel = "tel:" + phone_num;
+                    startActivity(new Intent("android.intent.action.CALL", Uri.parse(tel)));
+                }
+            });
+            Button button2 = (Button)v.findViewById(R.id.button2);
+            button2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String tel = "tel:" + phone_num;
+                    startActivity(new Intent("android.intent.action.DIAL", Uri.parse(tel)));
+                }
+            });
+
+            return v;
+        }
     }
 }

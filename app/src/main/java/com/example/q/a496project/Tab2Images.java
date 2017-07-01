@@ -26,10 +26,9 @@ public class Tab2Images extends Fragment {
         View view = inflater.inflate(R.layout.tab2_image, container, false);
 
         GridView gridview = (GridView) view.findViewById(R.id.gridview);
-        ((ViewGroup)gridview.getParent()).removeView(gridview);
 
-        gridview.setAdapter(new ImageAdapter(this.getActivity())) ;
-        return gridview;
+        gridview.setAdapter(new ImageAdapter(getActivity())) ;
+        return view;
     }
 
     private class ImageAdapter extends BaseAdapter {
@@ -49,7 +48,7 @@ public class Tab2Images extends Fragment {
             if (convertView == null) {
                 // if it's not recycled, initialize some attributes
                 imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(500, 500));
+                imageView.setLayoutParams(new GridView.LayoutParams(400, 400));
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 imageView.setPadding(0, 0, 0, 0);
             } else {
@@ -65,6 +64,15 @@ public class Tab2Images extends Fragment {
                 R.drawable.img1, R.drawable.img2,
                 R.drawable.img3, R.drawable.img4,
                 R.drawable.img5, R.drawable.img6,
+                R.drawable.img7, R.drawable.img8,
+                R.drawable.img9, R.drawable.img10,
+                R.drawable.img11, R.drawable.img12,
+                R.drawable.img1, R.drawable.img2,
+                R.drawable.img3, R.drawable.img4,
+                R.drawable.img5, R.drawable.img6,
+                R.drawable.img7, R.drawable.img8,
+                R.drawable.img9, R.drawable.img10,
+                R.drawable.img11, R.drawable.img12,
                 R.drawable.ir
         };
     }
