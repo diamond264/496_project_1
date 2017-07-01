@@ -55,6 +55,7 @@ public class Tab1Contacts extends Fragment {
             contact_list.add(contact_ele);
         }
         contactCursor.close();
+
         return contact_list;
     }
 
