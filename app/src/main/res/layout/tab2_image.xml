@@ -21,10 +21,11 @@
         android:verticalSpacing="10dp" />
 
     <Button
-        android:id="@+id/takepicbtn"
+        android:id="@+id/fromgall"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="15dp"
         android:gravity="center"
+        android:onClick="onClick"
         android:text="Get picture from gallery"
         android:textColor="#FFFFFF"
 
