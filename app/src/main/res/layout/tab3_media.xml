@@ -14,4 +14,9 @@
         android:layout_height="wrap_content"
         android:text="미디어" />
 
+    <VideoView
+        android:id="@+id/videoView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </RelativeLayout>
