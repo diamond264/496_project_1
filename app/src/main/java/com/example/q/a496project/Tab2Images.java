@@ -46,6 +46,8 @@ public class Tab2Images extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab2_image, container, false);
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "MyCameraApp");
 
         Button getfrom = (Button) view.findViewById(R.id.fromgall);
         getfrom.setOnClickListener(new View.OnClickListener() {
@@ -97,11 +99,9 @@ public class Tab2Images extends Fragment {
 
         public long getItemId(int position) { return 0; }
 
-        // create a new ImageView for each item referenced by the Adapter
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView;
             if (convertView == null) {
-                // if it's not recycled, initialize some attributes
                 imageView = new ImageView(mContext);
                 imageView.setLayoutParams(new GridView.LayoutParams(400, 400));
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
