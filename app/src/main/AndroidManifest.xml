@@ -36,6 +36,8 @@
             android:name=".ImageActivity"
             android:label="Selected Image">
         </activity>
+        <activity android:name=".ModeActivity" />
+        <activity android:name=".GameActivity"></activity>
     </application>
 
 </manifest>

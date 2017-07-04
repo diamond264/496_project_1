@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2E5A67"
+    tools:context="com.example.q.indian.GameActivity">
+
+    <LinearLayout
+        android:id="@+id/cpu_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#2E5A67">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/cpu_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="CPU"
+                android:textSize="40dp" />
+
+            <ImageView
+                android:id="@+id/cpu_face"
+                android:layout_width="152dp"
+                android:layout_height="88dp"
+                android:src="@drawable/player2" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/cpu_ganet"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ganet" />
+        <TextView
+            android:id="@+id/cpu_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="×20"
+            android:textSize="50dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/user_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="#2E5A67">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="USER"
+                android:textSize="40dp" />
+
+            <ImageView
+                android:id="@+id/user_face"
+                android:layout_width="152dp"
+                android:layout_height="88dp"
+                android:src="@drawable/player1" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/user_ganet"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ganet" />
+        <TextView
+            android:id="@+id/user_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="×20"
+            android:textSize="50dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true">
+        <ImageButton
+            android:id="@+id/up_batting"
+            android:layout_width="63dp"
+            android:layout_height="67dp"
+            android:src="@drawable/up"
+            android:scaleType="fitXY"
+            android:onClick="ButtonClick"/>
+
+        <ImageButton
+            android:id="@+id/down_batting"
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/down"
+            android:onClick="ButtonClick"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/casino"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:background="#468499"
+        android:layout_below="@+id/cpu_profile"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <Button
+            android:id="@+id/go"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cpu_batting_ganet"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="배팅"
+            android:textSize="35dp"
+            android:onClick="ButtonClick"/>
+        <Button
+            android:id="@+id/die"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="다이"
+            android:textSize="35dp"
+            android:layout_above="@+id/user_batting_ganet"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:onClick="ButtonClick"/>
+
+        <ImageView
+            android:id="@+id/fixcards"
+            android:layout_width="90dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="43dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="fitEnd"
+            android:src="@drawable/card_back" />
+        <ImageView
+            android:id="@+id/cards_set2"
+            android:layout_width="90dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="43dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="fitEnd"
+            android:src="@drawable/card_back" />
+        <ImageView
+            android:id="@+id/cards_set"
+            android:layout_width="90dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="43dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="fitEnd"
+            android:src="@drawable/card_back" />
+        <TextView
+            android:id="@+id/rest_cards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cards_set"
+            android:text="남은 카드:20"
+            android:textSize="20dp"/>
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="다음"
+            android:textSize="30dp"
+            android:layout_below="@id/rest_cards"/>
+        <ImageView
+            android:id="@+id/cpu_card"
+            android:layout_width="90dp"
+            android:layout_height="100dp"
+            android:scaleType="fitCenter"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/card_back"/>
+        <ImageView
+            android:id="@+id/cpu_batting_ganet"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ganet"
+            android:layout_toRightOf="@id/cpu_card"/>
+        <TextView
+            android:id="@+id/cpu_batting_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/cpu_batting_ganet"
+            android:text="×0"
+            android:textSize="30dp"/>
+        <ImageView
+            android:id="@+id/user_card"
+            android:layout_width="90dp"
+            android:layout_height="100dp"
+            android:scaleType="fitCenter"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/card_back"/>
+        <ImageView
+            android:id="@+id/user_batting_ganet"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ganet"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/user_card"/>
+        <TextView
+            android:id="@+id/user_batting_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/user_batting_ganet"
+            android:text="×0"
+            android:textSize="30dp"/>
+        <Button
+            android:id="@+id/gamestart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Start!"
+            android:textSize="40dp"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

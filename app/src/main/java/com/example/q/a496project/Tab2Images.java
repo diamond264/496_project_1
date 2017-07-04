@@ -1,8 +1,10 @@
 package com.example.q.a496project;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,7 +13,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Layout;
 import android.text.TextUtils;
@@ -26,6 +30,8 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.os.Parcelable;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -46,6 +52,8 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class Tab2Images extends Fragment {
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 530;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 531;
 
     private ArrayList<String> getPathOfAllImages()
     {
@@ -79,7 +87,9 @@ public class Tab2Images extends Fragment {
     }
 
     GridView gridview;
+    View view;
     public static ArrayList<File> galleryId = new ArrayList<>();
+    ArrayList<String> paths = new ArrayList<>();
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
 
@@ -114,28 +124,87 @@ public class Tab2Images extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (galleryId.size() == 0) {
-            ArrayList<String> paths = getPathOfAllImages();
-            for (int i=0; i<paths.size(); i++) {
-                File imgfile = new File(paths.get(i));
-                if (imgfile.exists()) galleryId.add(imgfile);
-            }
-        }
-
-        View view = inflater.inflate(R.layout.tab2_image, container, false);
+        view = inflater.inflate(R.layout.tab2_image, container, false);
 
         ImageButton picture = (ImageButton) view.findViewById(R.id.camera);
 
         picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doTakePhotoAction();
+                int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.CAMERA);
+
+                if (permissionCheck == PackageManager.PERMISSION_DENIED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.CAMERA)) {
+                        android.app.AlertDialog.Builder dialog = new android.app.AlertDialog.Builder(getActivity());
+                        dialog.setTitle("Permission Check")
+                                .setMessage("[설정] > [개인정보 보호 및 안전] > [앱 권한] 에서 권한을 요청하여야 합니다")
+                                .setPositiveButton("수락", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        requestPermissions(
+                                                new String[]{android.Manifest.permission.CAMERA},
+                                                MY_PERMISSIONS_REQUEST_CAMERA
+                                        );
+                                    }
+                                })
+                                .setNegativeButton("거절", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Toast.makeText(getActivity(), "요청이 거부되었습니다", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).create().show();
+                    } else {
+                        requestPermissions(
+                                new String[]{Manifest.permission.CAMERA},
+                                MY_PERMISSIONS_REQUEST_CAMERA
+                        );
+                    }
+                } else {
+                    doTakePhotoAction();
+                }
             }
         });
 
-        gridview = (GridView) view.findViewById(R.id.gridview);
+        if (galleryId.size() == 0) {
+            int permissionCheck = ContextCompat.checkSelfPermission(this.getActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE);
 
-        gridview.setAdapter(new galleryAdapter(getActivity())) ;
+            if (permissionCheck == PackageManager.PERMISSION_DENIED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    android.app.AlertDialog.Builder dialog = new android.app.AlertDialog.Builder(getActivity());
+                    dialog.setTitle("Permission Check")
+                            .setMessage("[설정] > [개인정보 보호 및 안전] > [앱 권한] 에서 권한을 요청하여야 합니다")
+                            .setPositiveButton("수락", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestPermissions(
+                                            new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
+                                    );
+                                }
+                            })
+                            .setNegativeButton("거절", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(getActivity(), "요청이 거부되었습니다", Toast.LENGTH_SHORT).show();
+                                }
+                            }).create().show();
+                } else {
+                    requestPermissions(
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
+                    );
+                }
+            } else {
+                paths = getPathOfAllImages();
+                for (int i = 0; i < paths.size(); i++) {
+                    File imgfile = new File(paths.get(i));
+                    if (imgfile.exists()) galleryId.add(imgfile);
+                }
+                gridview = (GridView) view.findViewById(R.id.gridview);
+                gridview.setAdapter(new galleryAdapter(getActivity())) ;
+            }
+        }
+
         return view;
     }
 
@@ -188,4 +257,34 @@ public class Tab2Images extends Fragment {
         startActivityForResult(Intent.createChooser(intent, "Complete"), PICK_FROM_GALLERY);
     }
     */
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    paths = getPathOfAllImages();
+                    for (int i = 0; i < paths.size(); i++) {
+                        File imgfile = new File(paths.get(i));
+                        if (imgfile.exists()) galleryId.add(imgfile);
+                    }
+                    gridview = (GridView) view.findViewById(R.id.gridview);
+                    gridview.setAdapter(new galleryAdapter(getActivity())) ;
+                } else {
+                    Toast.makeText(getActivity(),"요청이 거부되었습니다",Toast.LENGTH_SHORT).show();
+                }
+                return;
+
+            case MY_PERMISSIONS_REQUEST_CAMERA:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    doTakePhotoAction();
+                } else {
+                    Toast.makeText(getActivity(),"요청이 거부되었습니다",Toast.LENGTH_SHORT).show();
+                }
+                return;
+        }
+    }
 }
