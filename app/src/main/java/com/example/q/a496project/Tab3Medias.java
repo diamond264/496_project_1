@@ -20,14 +20,6 @@ public class Tab3Medias extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab3_media, container, false);
-
-        VideoView videoView = (VideoView) view.findViewById(R.id.videoView);
-        Uri uri = Uri.parse("rtsp://v6.cache4.c.youtu.be/tWRT6LrZGWQ");
-        videoView.setVideoURI(uri);
-        final MediaController mediaController = new MediaController(getActivity());
-        videoView.setMediaController(mediaController);
-        videoView.start();
-        ((ViewGroup)videoView.getParent()).removeView(videoView);
-        return videoView;
+        return view;
     }
 }

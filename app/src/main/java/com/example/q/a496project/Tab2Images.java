@@ -3,12 +3,17 @@ package com.example.q.a496project;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +21,14 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.os.Parcelable;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import static android.R.attr.data;
+import static android.R.attr.galleryItemBackground;
 import static android.R.attr.layout_gravity;
 import static android.app.Activity.RESULT_OK;
 
@@ -28,31 +37,84 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class Tab2Images extends Fragment {
+    GridView gridview;
+    ArrayList<Bitmap> galleryId = new ArrayList<>();
+    private static final int PICK_FROM_CAMERA = 1;
+    private static final int PICK_FROM_GALLERY = 2;
+
+    int[] imageID = {
+            R.drawable.img1, R.drawable.img2,
+            R.drawable.img3, R.drawable.img4
+    };
+
     public void doTakePhotoAction() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        String url = "tmp_" + String.valueOf(System.currentTimeMillis()) + ".jpg";
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(Environment.getExternalStorageDirectory(), url)));
-        startActivityForResult(intent, 0);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString());
+        intent.putExtra("return-data", true);
+        startActivityForResult(intent, PICK_FROM_CAMERA);
+    }
+    public void doTakeAlbumAction() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra("return-data", true);
+        startActivityForResult(Intent.createChooser(intent, "Complete"), PICK_FROM_GALLERY);
     }
 
-    public void doTakeAlbumAction() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-        startActivityForResult(intent, 1);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_FROM_GALLERY) {
+            Uri uri = data.getData();
+
+            if (uri != null) {
+                Bitmap photo = null;
+                try {
+                    photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                photo = Bitmap.createScaledBitmap(photo, 200, 200, true);
+                galleryId.add(photo);
+                gridview.setAdapter(new galleryAdapter(getActivity()));
+            }
+        }
+        if (requestCode == PICK_FROM_CAMERA) {
+            Uri uri = data.getData();
+
+            if (uri != null) {
+                Bitmap photo = null;
+                try {
+                    photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                photo = Bitmap.createScaledBitmap(photo, 200, 200, true);
+                galleryId.add(photo);
+                gridview.setAdapter(new galleryAdapter(getActivity()));
+            }
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        for (int i=0; i<4; i++) {
+            //BitmapFactory.Options options = new BitmapFactory.Options();
+            //options.inSampleSize = 3000000;
+            Bitmap bmp = BitmapFactory.decodeResource(getActivity().getResources(), imageID[i]);
+            bmp = Bitmap.createScaledBitmap(bmp, 200, 200, true);
+            galleryId.add(bmp);
+        }
+
         View view = inflater.inflate(R.layout.tab2_image, container, false);
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
 
         Button getfrom = (Button) view.findViewById(R.id.fromgall);
+
         getfrom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (v.getId() == R.id.fromgall) {
                     DialogInterface.OnClickListener cameraListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -82,22 +144,32 @@ public class Tab2Images extends Fragment {
             }
         });
 
-        GridView gridview = (GridView) view.findViewById(R.id.gridview);
+        gridview = (GridView) view.findViewById(R.id.gridview);
 
-        gridview.setAdapter(new ImageAdapter(getActivity())) ;
+        gridview.setAdapter(new galleryAdapter(getActivity())) ;
         return view;
     }
 
-    private class ImageAdapter extends BaseAdapter {
+    private class galleryAdapter extends BaseAdapter {
         private Context mContext;
+        LayoutInflater inflater;
 
-        public ImageAdapter(Context c) { mContext = c; }
+        public galleryAdapter(Context c) {
+            mContext = c;
+            inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
 
-        public int getCount() { return mThumbIds.length; }
+        public int getCount() {
+            return galleryId.size();
+        }
 
-        public Object getItem(int position) { return null; }
+        public Object getItem(int position) {
+            return position;
+        }
 
-        public long getItemId(int position) { return 0; }
+        public long getItemId(int position) {
+            return position;
+        }
 
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView;
@@ -110,39 +182,9 @@ public class Tab2Images extends Fragment {
                 imageView = (ImageView) convertView;
             }
 
-            imageView.setImageResource(mThumbIds[position]);
-
-            imageView.setOnClickListener(new ImageClickListener(mContext, mThumbIds[position]));
+            imageView.setImageBitmap(galleryId.get(position));
+            imageView.setOnClickListener(new ImageClickListener(mContext, galleryId.get(position)));
             return imageView;
         }
-
-        // references to our images
-        private Integer[] mThumbIds = {
-                R.drawable.img1, R.drawable.img2,
-                R.drawable.img3, R.drawable.img4,
-                R.drawable.img5, R.drawable.img6,
-                R.drawable.img7, R.drawable.img8,
-                R.drawable.img9, R.drawable.img10,
-                R.drawable.img11, R.drawable.img12,
-                R.drawable.img1, R.drawable.img2,
-                R.drawable.img3, R.drawable.img4,
-                R.drawable.img5, R.drawable.img6,
-                R.drawable.img7, R.drawable.img8,
-                R.drawable.img9, R.drawable.img10,
-                R.drawable.img11, R.drawable.img12,
-                R.drawable.img1, R.drawable.img2,
-                R.drawable.img3, R.drawable.img4,
-                R.drawable.img5, R.drawable.img6,
-                R.drawable.img7, R.drawable.img8,
-                R.drawable.img9, R.drawable.img10,
-                R.drawable.img11, R.drawable.img12,
-                R.drawable.img1, R.drawable.img2,
-                R.drawable.img3, R.drawable.img4,
-                R.drawable.img5, R.drawable.img6,
-                R.drawable.img7, R.drawable.img8,
-                R.drawable.img9, R.drawable.img10,
-                R.drawable.img11, R.drawable.img12,
-                R.drawable.ir
-        };
     }
 }

@@ -17,17 +17,21 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class Tab1Contacts extends Fragment {
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 527;
@@ -35,6 +39,7 @@ public class Tab1Contacts extends Fragment {
     private static final int MY_PERMISSIONS_REQUEST_DIAL_PHONE = 529;
     ArrayList<Contact> ContactArrList;
     ArrayList<Contact> items;
+    ArrayList<Contact> displayitems = new ArrayList<>();
     String phone_num;
     View view;
 
@@ -71,7 +76,35 @@ public class Tab1Contacts extends Fragment {
             }
         } else {
             ContactArrList = getContactList();
-            CustomAdapter adapter = new CustomAdapter(this.getActivity(), R.layout.contact_layout, ContactArrList);
+            final CustomAdapter adapter = new CustomAdapter(this.getActivity(), R.layout.contact_layout, ContactArrList);
+
+            final EditText searchText = (EditText) view.findViewById(R.id.text_search);
+            searchText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String search_text = s.toString();
+                    adapter.filter(search_text);
+                }
+            });
+
+            Button direct = (Button) view.findViewById(R.id.direct);
+            direct.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String tel = "tel:" + displayitems.get(0).phone_num;
+                    startActivity(new Intent("android.intent.action.CALL", Uri.parse(tel)));
+                }
+            });
 
             ListView listview = (ListView) view.findViewById(R.id.list_view);
             if (listview != null)
@@ -81,10 +114,42 @@ public class Tab1Contacts extends Fragment {
     }
 
     private class CustomAdapter extends ArrayAdapter<Contact> {
+        public void filter(String searchText) {
+            searchText = searchText.toLowerCase(Locale.getDefault());
+            displayitems.clear();
+            if (searchText.length() == 0) {
+                displayitems.addAll(items);
+            }
+            else {
+                for (Contact item : items) {
+                    if (item.name.contains(searchText)) {
+                        displayitems.add(item);
+                    }
+                }
+            }
+            notifyDataSetChanged();
+        }
 
         public CustomAdapter(Context context, int textViewResourceId, ArrayList<Contact> objects) {
             super(context, textViewResourceId, objects);
-            items = objects;
+            displayitems = objects;
+            items = new ArrayList<>();
+            items.addAll(displayitems);
+        }
+
+        @Override
+        public int getCount() {
+            return displayitems.size();
+        }
+
+        @Override
+        public Contact getItem(int position) {
+            return displayitems.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
         }
 
         public View getView(final int position, View convertView, ViewGroup parent) {
@@ -95,11 +160,11 @@ public class Tab1Contacts extends Fragment {
             }
 
             TextView textView1 = (TextView)v.findViewById(R.id.textView1);
-            textView1.setText(items.get(position).name);
+            textView1.setText(displayitems.get(position).name);
             TextView textView2 = (TextView)v.findViewById(R.id.textView2);
-            textView2.setText(items.get(position).phone_num);
+            textView2.setText(displayitems.get(position).phone_num);
             Button button1 = (Button)v.findViewById(R.id.button1);
-            phone_num = items.get(position).phone_num;
+            phone_num = displayitems.get(position).phone_num;
 
             button1.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -132,7 +197,7 @@ public class Tab1Contacts extends Fragment {
                             );
                         }
                     } else {
-                        String tel = "tel:" + items.get(position).phone_num;
+                        String tel = "tel:" + displayitems.get(position).phone_num;
                         startActivity(new Intent("android.intent.action.CALL", Uri.parse(tel)));
                     }
                 }
@@ -169,7 +234,7 @@ public class Tab1Contacts extends Fragment {
                             );
                         }
                     } else {
-                        String tel = "tel:" + items.get(position).phone_num;
+                        String tel = "tel:" + displayitems.get(position).phone_num;
                         startActivity(new Intent("android.intent.action.DIAL", Uri.parse(tel)));
                     }
                 }
@@ -256,6 +321,4 @@ public class Tab1Contacts extends Fragment {
                 return;
         }
     }
-
-
 }
