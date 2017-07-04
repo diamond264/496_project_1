@@ -44,6 +44,7 @@ public class Tab1Contacts extends Fragment {
     ArrayList<Contact> ContactArrList;
     ArrayList<Contact> items;
     ArrayList<Contact> displayitems = new ArrayList<>();
+
     String phone_num;
     View view;
 
