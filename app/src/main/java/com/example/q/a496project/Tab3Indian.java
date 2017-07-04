@@ -15,6 +15,8 @@ import java.util.Collections;
  */
 
 public class Tab3Indian extends Fragment {
+    private static final int DIE = 1001;
+    private static final int BAT = 1002;
     ArrayList<Card> Deck = new ArrayList<>();
     ArrayList<Integer> card_images = new ArrayList<>();
     User computer;
@@ -22,13 +24,14 @@ public class Tab3Indian extends Fragment {
 
     public void InitialUsers() {
         user = new User();
-        user.garnet = 15;
-        user.won = 0;
+        user.garnet = 19;
+        user.wonLastGame = 0;
         user.current_card = null;
+        user.current_bat = 1;
 
         computer = new User();
-        computer.garnet = 15;
-        computer.won = 0;
+        computer.garnet = 19;
+        computer.wonLastGame = 0;
         computer.current_card = null;
     }
 
@@ -54,7 +57,7 @@ public class Tab3Indian extends Fragment {
         user.prev_card = user.current_card;
         computer.prev_card = computer.current_card;
 
-        if (user.won == 1) {
+        if (user.wonLastGame == 1) {
             user.current_card = c1;
             computer.current_card = c2;
         } else {
@@ -63,11 +66,114 @@ public class Tab3Indian extends Fragment {
         }
     }
 
+    public void user_win() {
+        user.win();
+        computer.lose();
+        user.garnet += user.current_bat + computer.current_bat - 1;
+        user.current_bat = 1;
+        computer.garnet--;
+        computer.current_bat = 1;
+    }
+
+    public void user_lose() {
+        computer.win();
+        user.lose();
+        computer.garnet += user.current_bat + computer.current_bat - 1;
+        computer.current_bat = 1;
+        user.garnet--;
+        user.current_bat = 1;
+    }
+
+    public void Die_or_Bat() {
+        /////onClickEvent 넣어주기
+    }
+
+    public void COM_decision() {
+        ///// Random하게 처리
+    }
+
+    public void Fight() {
+        if (user.wonLastGame == 1) {
+            Die_or_Bat();
+            if (user.decision == DIE) {
+                user_lose();
+            }
+            else {
+                // Wait until computer make decision
+                COM_decision();
+                if (computer.decision == DIE) {
+                    user.win();
+                }
+                else {
+                    if (computer.current_bat == user.current_bat) {
+                        if (user.current_card.num >= computer.current_card.num) {
+                            user_win();
+                        } else {
+                            user_lose();
+                        }
+                    }
+                    else {
+                        user.win();
+                        Fight();
+                    }
+                }
+            }
+        }
+        else {
+            COM_decision();
+            if (computer.decision == DIE) {
+                user.win();
+            }
+            else {
+                Die_or_Bat();
+                if (user.decision == DIE) {
+                    user_lose();
+                }
+                else {
+                    if (computer.current_bat == user.current_bat) {
+                        if (user.current_card.num >= computer.current_card.num) {
+                            user_win();
+                        } else {
+                            user_lose();
+                        }
+                    } else {
+                        user.lose();
+                        Fight();
+                    }
+                }
+            }
+        }
+    }
+
     public class User {
         int garnet;
-        int won;
+        int wonLastGame;
         Card current_card;
-        Card prev_card
+        int current_bat;
+        Card prev_card;
+        int decision;
+
+        void win() {
+            this.wonLastGame = 1;
+        }
+
+        void lose() {
+            this.wonLastGame = 0;
+        }
+
+        void bat_up() {
+            if (this.current_bat < this.garnet && this.garnet > 0) {
+                this.current_bat++;
+                this.garnet--;
+            }
+        }
+
+        void bat_down() {
+            if (this.current_bat > 1) {
+                this.current_bat--;
+                this.garnet++;
+            }
+        }
     }
 
     public class Card {
