@@ -6,6 +6,10 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.File;
+
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ImageActivity extends Activity {
@@ -15,17 +19,18 @@ public class ImageActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_slide);
         ImageView imageView = (ImageView)findViewById(R.id.imageView);
-        /*
         PhotoViewAttacher mAttacher;
-        mAttacher = new PhotoViewAttacher(imageView);
-        mAttacher.setScaleType(ImageView.ScaleType.FIT_CENTER);*/
         setImage(imageView);
+        mAttacher = new PhotoViewAttacher(imageView);
+        mAttacher.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        mAttacher.update();
+
     }
 
     private void setImage(ImageView imageView) {
         Intent receivedIntent = getIntent();
 
-        Bitmap imageID = (Bitmap)receivedIntent.getExtras().get("image ID");
-        imageView.setImageBitmap(imageID);
+        File imageID = (File)receivedIntent.getExtras().get("image ID");
+        Glide.with(this).load(imageID).into(imageView);
     }
 }

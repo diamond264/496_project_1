@@ -6,13 +6,15 @@ import android.graphics.Bitmap;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import java.io.File;
+
 public class ImageClickListener implements OnClickListener {
 
     Context context;
 
-    Bitmap imageID;
+    File imageID;
 
-    public ImageClickListener(Context context, Bitmap imageID) {
+    public ImageClickListener(Context context, File imageID) {
         this.context = context;
         this.imageID = imageID;
     }

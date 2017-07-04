@@ -3,6 +3,7 @@ package com.example.q.a496project;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
@@ -13,15 +14,19 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Layout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.os.Parcelable;
+
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,15 +42,42 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class Tab2Images extends Fragment {
+
+    private ArrayList<String> getPathOfAllImages()
+    {
+        ArrayList<String> result = new ArrayList<>();
+        Uri uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String[] projection = { MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME };
+
+        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, MediaStore.MediaColumns.DATE_ADDED + " desc");
+        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+        int columnDisplayname = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
+
+        int lastIndex;
+        while (cursor.moveToNext())
+        {
+            String absolutePathOfImage = cursor.getString(columnIndex);
+            String nameOfFile = cursor.getString(columnDisplayname);
+            lastIndex = absolutePathOfImage.lastIndexOf(nameOfFile);
+            lastIndex = lastIndex >= 0 ? lastIndex : nameOfFile.length() - 1;
+
+            if (!TextUtils.isEmpty(absolutePathOfImage))
+            {
+                result.add(absolutePathOfImage);
+            }
+        }
+
+        for (String string : result)
+        {
+            Log.i("PhotoSelectActivity.java | getPathOfAllImages", "|" + string + "|");
+        }
+        return result;
+    }
+
     GridView gridview;
-    ArrayList<Bitmap> galleryId = new ArrayList<>();
+    ArrayList<File> galleryId = new ArrayList<>();
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
-
-    int[] imageID = {
-            R.drawable.img1, R.drawable.img2,
-            R.drawable.img3, R.drawable.img4
-    };
 
     public void doTakePhotoAction() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -68,13 +100,7 @@ public class Tab2Images extends Fragment {
             Uri uri = data.getData();
 
             if (uri != null) {
-                Bitmap photo = null;
-                try {
-                    photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                photo = Bitmap.createScaledBitmap(photo, 200, 200, true);
+                File photo = new File(uri.getPath());
                 galleryId.add(photo);
                 gridview.setAdapter(new galleryAdapter(getActivity()));
             }
@@ -83,13 +109,7 @@ public class Tab2Images extends Fragment {
             Uri uri = data.getData();
 
             if (uri != null) {
-                Bitmap photo = null;
-                try {
-                    photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                photo = Bitmap.createScaledBitmap(photo, 200, 200, true);
+                File photo = new File(uri.getPath());
                 galleryId.add(photo);
                 gridview.setAdapter(new galleryAdapter(getActivity()));
             }
@@ -99,14 +119,11 @@ public class Tab2Images extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        for (int i=0; i<4; i++) {
-            //BitmapFactory.Options options = new BitmapFactory.Options();
-            //options.inSampleSize = 3000000;
-            Bitmap bmp = BitmapFactory.decodeResource(getActivity().getResources(), imageID[i]);
-            bmp = Bitmap.createScaledBitmap(bmp, 200, 200, true);
-            galleryId.add(bmp);
+        ArrayList<String> paths = getPathOfAllImages();
+        for (int i=0; i<paths.size(); i++) {
+            File imgfile = new File(paths.get(i));
+            if (imgfile.exists()) galleryId.add(imgfile);
         }
-
         View view = inflater.inflate(R.layout.tab2_image, container, false);
 
         Button getfrom = (Button) view.findViewById(R.id.fromgall);
@@ -182,7 +199,10 @@ public class Tab2Images extends Fragment {
                 imageView = (ImageView) convertView;
             }
 
-            imageView.setImageBitmap(galleryId.get(position));
+            //imageView.setImageBitmap(galleryId.get(position));
+            Glide.with(getActivity())
+                    .load(galleryId.get(position))
+                    .into(imageView);
             imageView.setOnClickListener(new ImageClickListener(mContext, galleryId.get(position)));
             return imageView;
         }

@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -159,11 +163,16 @@ public class Tab1Contacts extends Fragment {
                 v = vi.inflate(R.layout.contact_layout, null);
             }
 
+            ImageView imageView = (ImageView)v.findViewById(R.id.olaf);
+            imageView.setImageResource(R.drawable.olaf);
+            imageView.setBackground(new ShapeDrawable(new OvalShape()));
+            imageView.setClipToOutline(true);
+
             TextView textView1 = (TextView)v.findViewById(R.id.textView1);
             textView1.setText(displayitems.get(position).name);
             TextView textView2 = (TextView)v.findViewById(R.id.textView2);
             textView2.setText(displayitems.get(position).phone_num);
-            Button button1 = (Button)v.findViewById(R.id.button1);
+            ImageButton button1 = (ImageButton)v.findViewById(R.id.button1);
             phone_num = displayitems.get(position).phone_num;
 
             button1.setOnClickListener(new View.OnClickListener() {
@@ -202,7 +211,7 @@ public class Tab1Contacts extends Fragment {
                     }
                 }
             });
-            Button button2 = (Button)v.findViewById(R.id.button2);
+            ImageButton button2 = (ImageButton) v.findViewById(R.id.button2);
             button2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
