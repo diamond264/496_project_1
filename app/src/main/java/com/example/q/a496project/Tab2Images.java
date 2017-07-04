@@ -23,14 +23,18 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.os.Parcelable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static android.R.attr.data;
 import static android.R.attr.galleryItemBackground;
@@ -75,7 +79,7 @@ public class Tab2Images extends Fragment {
     }
 
     GridView gridview;
-    ArrayList<File> galleryId = new ArrayList<>();
+    public static ArrayList<File> galleryId = new ArrayList<>();
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
 
@@ -86,32 +90,23 @@ public class Tab2Images extends Fragment {
         intent.putExtra("return-data", true);
         startActivityForResult(intent, PICK_FROM_CAMERA);
     }
-    public void doTakeAlbumAction() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.putExtra("return-data", true);
-        startActivityForResult(Intent.createChooser(intent, "Complete"), PICK_FROM_GALLERY);
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PICK_FROM_GALLERY) {
-            Uri uri = data.getData();
-
-            if (uri != null) {
-                File photo = new File(uri.getPath());
-                galleryId.add(photo);
-                gridview.setAdapter(new galleryAdapter(getActivity()));
-            }
-        }
         if (requestCode == PICK_FROM_CAMERA) {
-            Uri uri = data.getData();
+            if (data != null) {
+                Uri uri = data.getData();
+                Cursor c = getActivity().getContentResolver().query(Uri.parse(uri.toString()), null,null,null,null);
+                c.moveToNext();
+                String path = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
+                uri = Uri.fromFile(new File(path));
+                c.close();
 
-            if (uri != null) {
-                File photo = new File(uri.getPath());
-                galleryId.add(photo);
-                gridview.setAdapter(new galleryAdapter(getActivity()));
+                if (uri != null) {
+                    File photo = new File(uri.getPath());
+                    galleryId.add(photo);
+                    gridview.setAdapter(new galleryAdapter(getActivity()));
+                }
             }
         }
     }
@@ -119,45 +114,22 @@ public class Tab2Images extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ArrayList<String> paths = getPathOfAllImages();
-        for (int i=0; i<paths.size(); i++) {
-            File imgfile = new File(paths.get(i));
-            if (imgfile.exists()) galleryId.add(imgfile);
+        if (galleryId.size() == 0) {
+            ArrayList<String> paths = getPathOfAllImages();
+            for (int i=0; i<paths.size(); i++) {
+                File imgfile = new File(paths.get(i));
+                if (imgfile.exists()) galleryId.add(imgfile);
+            }
         }
+
         View view = inflater.inflate(R.layout.tab2_image, container, false);
 
-        Button getfrom = (Button) view.findViewById(R.id.fromgall);
+        ImageButton picture = (ImageButton) view.findViewById(R.id.camera);
 
-        getfrom.setOnClickListener(new View.OnClickListener() {
+        picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (v.getId() == R.id.fromgall) {
-                    DialogInterface.OnClickListener cameraListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            doTakePhotoAction();
-                        }
-                    };
-                    DialogInterface.OnClickListener albumListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            doTakeAlbumAction();
-                        }
-                    };
-                    DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    };
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Upload Image")
-                            .setPositiveButton("From Album", albumListener)
-                            .setNeutralButton("Cancel", cancelListener)
-                            .setNegativeButton("From Camera", cameraListener)
-                            .show();
-                }
+                doTakePhotoAction();
             }
         });
 
@@ -207,4 +179,13 @@ public class Tab2Images extends Fragment {
             return imageView;
         }
     }
+    /*
+    public void doTakeAlbumAction() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra("return-data", true);
+        startActivityForResult(Intent.createChooser(intent, "Complete"), PICK_FROM_GALLERY);
+    }
+    */
 }
